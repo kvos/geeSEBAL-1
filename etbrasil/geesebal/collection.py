@@ -95,10 +95,9 @@ class Collection():
             #GET INFORMATIONS FROM IMAGE
             self._index=self.image.get('system:index')
             self.cloud_cover=self.image.get('CLOUD_COVER')
-            self.LANDSAT_ID=self.image.get('LANDSAT_ID').getInfo()
-            self.landsat_version=self.image.get('SATELLITE').getInfo()
-            self.zenith_angle=self.image.get("SOLAR_ZENITH_ANGLE").getInfo()
-            self.azimuth_angle=self.image.get('SOLAR_AZIMUTH_ANGLE')
+            self.LANDSAT_ID=self.image.get('LANDSAT_PRODUCT_ID').getInfo()
+            self.landsat_version=self.image.get('SPACECRAFT_ID').getInfo()
+            self.sun_elevation=self.image.get('SUN_ELEVATION').getInfo()
             self.time_start=self.image.get('system:time_start')
             self._date=ee.Date(self.time_start)
             self._year=ee.Number(self._date.get('year'))
@@ -119,12 +118,13 @@ class Collection():
 
             #MAKS
             if self.landsat_version == 'LANDSAT_5':
-                 #self.image=self.image .select([0,1,2,3,4,5,6,9], ["B","GR","R","NIR","SWIR_1","BRT","SWIR_2", "pixel_qa"])
-                 self.image_toa=ee.Image('LANDSAT/LT05/C01/T1/'+ self._index.getInfo())
+                 # self.image = self.image.select(['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5' ,'ST_B6' ,'SR_B7' ,'QA_PIXEL'],
+                 #                                ["B"    ,"GR"   ,"R"    ,"NIR"  ,"SWIR_1","BRT"   ,"SWIR_2","pixel_qa"])
+                 self.image_toa=ee.Image('LANDSAT/LT05/C02/T1_TOA/'+ self._index.getInfo())
 
                  #GET CALIBRATED RADIANCE
                  self.col_rad = ee.Algorithms.Landsat.calibratedRadiance(self.image_toa);
-                 self.col_rad = self.image.addBands(self.col_rad.select([5],["T_RAD"]))
+                 self.col_rad = self.image.addBands(self.col_rad.select(['B6'],["T_RAD"]))
 
                  #CLOUD REMOTION
                  self.image=ee.ImageCollection(self.image).map(f_cloudMaskL457_SR)
@@ -133,12 +133,13 @@ class Collection():
                  self.image=self.image.map(f_albedoL5L7)
 
             elif self.landsat_version == 'LANDSAT_7':
-                #self.image=self.image .select([0,1,2,3,4,5,6,9], ["B","GR","R","NIR","SWIR_1","BRT","SWIR_2", "pixel_qa"])
-                 self.image_toa=ee.Image('LANDSAT/LE07/C01/T1/'+ self.CollectionList[n][4:])
+                 # self.image = self.image.select(['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5' ,'ST_B6' ,'SR_B7' ,'QA_PIXEL'],
+                 #                                ["B"    ,"GR"   ,"R"    ,"NIR"  ,"SWIR_1","BRT"   ,"SWIR_2","pixel_qa"])
+                 self.image_toa=ee.Image('LANDSAT/LE07/C02/T1_TOA/'+ self.CollectionList[n][4:])
 
                  #GET CALIBRATED RADIANCE
                  self.col_rad = ee.Algorithms.Landsat.calibratedRadiance(self.image_toa);
-                 self.col_rad = self.image.addBands(self.col_rad.select([5],["T_RAD"]))
+                 self.col_rad = self.image.addBands(self.col_rad.select(['B6_VCID_1'],["T_RAD"]))
 
                  #CLOUD REMOTION
                  self.image=ee.ImageCollection(self.image).map(f_cloudMaskL457_SR)
@@ -146,25 +147,28 @@ class Collection():
                  #ALBEDO TASUMI ET AL. (2008)
                  self.image=self.image.map(f_albedoL5L7)
 
-            else:
-                #self.image = self.select([0,1,2,3,4,5,6,7,10],["UB","B","GR","R","NIR","SWIR_1","SWIR_2","BRT","pixel_qa"])
-                self.image_toa=ee.Image('LANDSAT/LC08/C01/T1/'+self._index.getInfo())
+            elif self.landsat_version == 'LANDSAT_8':
+                # self.image = self.image.select(['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5','SR_B6' ,'SR_B7' ,'ST_B10','QA_PIXEL'],
+                #                                ["UB"   ,"B"    ,"GR"   ,"R"    ,"NIR"  ,"SWIR_1","SWIR_2","BRT"   ,"pixel_qa"])
+                self.image_toa=ee.Image('LANDSAT/LC08/C02/T1_TOA/'+self._index.getInfo())
 
                 #GET CALIBRATED RADIANCE
                 self.col_rad = ee.Algorithms.Landsat.calibratedRadiance(self.image_toa)
-                self.col_rad = self.image.addBands(self.col_rad.select([9],["T_RAD"]))
+                self.col_rad = self.image.addBands(self.col_rad.select(['B10'],["T_RAD"]))
 
                 #CLOUD REMOTION
                 self.image=ee.ImageCollection(self.image).map(f_cloudMaskL8_SR)
 
                 #ALBEDO TASUMI ET AL. (2008) METHOD WITH KE ET AL. (2016) COEFFICIENTS
                 self.image=self.image.map(f_albedoL8)
+                
+            else: 
+                raise Exception('Landsat 9 not added yet.')
 
             #GEOMETRY
             self.geometryReducer=self.image.geometry().bounds().getInfo()
             self.geometry_download=self.geometryReducer['coordinates']
             self.camada_clip=self.image.select('BRT').first()
-            self.sun_elevation=ee.Number(90).subtract(self.zenith_angle)
 
             #METEOROLOGY PARAMETERS
             col_meteorology= get_meteorology(self.image,self.time_start)
