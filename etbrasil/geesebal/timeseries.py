@@ -121,13 +121,13 @@ class TimeSeries():
 
             #MAKS
             if self.landsat_version == 'LANDSAT_5':
-                 self.image = self.image.select(['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5' ,'ST_B6' ,'SR_B7' ,'QA_PIXEL'],
-                                                ["B"    ,"GR"   ,"R"    ,"NIR"  ,"SWIR_1","BRT"   ,"SWIR_2","pixel_qa"])
-                 self.image_toa=ee.Image('LANDSAT/LT05/C02/T1_TOA/'+ self.CollectionList[n][4:])
+                 # self.image = self.image.select(['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5' ,'ST_B6' ,'SR_B7' ,'QA_PIXEL'],
+                 #                                ["B"    ,"GR"   ,"R"    ,"NIR"  ,"SWIR_1","BRT"   ,"SWIR_2","pixel_qa"])
+                 # self.image_toa=ee.Image('LANDSAT/LT05/C02/T1_TOA/'+ self.CollectionList[n][4:])
 
-                 #GET CALIBRATED RADIANCE
-                 self.col_rad = ee.Algorithms.Landsat.calibratedRadiance(self.image_toa);
-                 self.col_rad = self.image.addBands(self.col_rad.select(['B6'],["T_RAD"]))
+                 # #GET CALIBRATED RADIANCE
+                 # self.col_rad = ee.Algorithms.Landsat.calibratedRadiance(self.image_toa);
+                 # self.col_rad = self.image.addBands(self.col_rad.select(['B6'],["T_RAD"]))
 
                  #CLOUD REMOTION
                  self.image=ee.ImageCollection(self.image).map(f_cloudMaskL457_SR)
@@ -136,13 +136,13 @@ class TimeSeries():
                  self.image=self.image.map(f_albedoL5L7)
 
             elif self.landsat_version == 'LANDSAT_7':
-                 self.image = self.image.select(['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5' ,'ST_B6' ,'SR_B7' ,'QA_PIXEL'],
-                                                ["B"    ,"GR"   ,"R"    ,"NIR"  ,"SWIR_1","BRT"   ,"SWIR_2","pixel_qa"])
-                 self.image_toa=ee.Image('LANDSAT/LE07/C02/T1_TOA/'+ self.CollectionList[n][4:])
+                 # self.image = self.image.select(['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5' ,'ST_B6' ,'SR_B7' ,'QA_PIXEL'],
+                 #                                ["B"    ,"GR"   ,"R"    ,"NIR"  ,"SWIR_1","BRT"   ,"SWIR_2","pixel_qa"])
+                 # self.image_toa=ee.Image('LANDSAT/LE07/C02/T1_TOA/'+ self.CollectionList[n][4:])
 
-                 #GET CALIBRATED RADIANCE
-                 self.col_rad = ee.Algorithms.Landsat.calibratedRadiance(self.image_toa);
-                 self.col_rad = self.image.addBands(self.col_rad.select(['B6_VCID_1'],["T_RAD"]))
+                 # #GET CALIBRATED RADIANCE
+                 # self.col_rad = ee.Algorithms.Landsat.calibratedRadiance(self.image_toa);
+                 # self.col_rad = self.image.addBands(self.col_rad.select(['B6_VCID_1'],["T_RAD"]))
 
                  #CLOUD REMOTION
                  self.image=ee.ImageCollection(self.image).map(f_cloudMaskL457_SR)
@@ -151,13 +151,13 @@ class TimeSeries():
                  self.image=self.image.map(f_albedoL5L7)
 
             elif self.landsat_version == 'LANDSAT_8':
-                self.image = self.image.select(['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5','SR_B6' ,'SR_B7' ,'ST_B10','QA_PIXEL'],
-                                               ["UB"   ,"B"    ,"GR"   ,"R"    ,"NIR"  ,"SWIR_1","SWIR_2","BRT"   ,"pixel_qa"])
-                self.image_toa=ee.Image('LANDSAT/LC08/C02/T1_TOA/'+self.CollectionList[n][2:])
+                # self.image = self.image.select(['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5','SR_B6' ,'SR_B7' ,'ST_B10','QA_PIXEL'],
+                #                                ["UB"   ,"B"    ,"GR"   ,"R"    ,"NIR"  ,"SWIR_1","SWIR_2","BRT"   ,"pixel_qa"])
+                # self.image_toa=ee.Image('LANDSAT/LC08/C02/T1_TOA/'+self.CollectionList[n][2:])
 
-                 #GET CALIBRATED RADIANCE
-                self.col_rad = ee.Algorithms.Landsat.calibratedRadiance(self.image_toa)
-                self.col_rad = self.image.addBands(self.col_rad.select(['B10'],["T_RAD"]))
+                #  #GET CALIBRATED RADIANCE
+                # self.col_rad = ee.Algorithms.Landsat.calibratedRadiance(self.image_toa)
+                # self.col_rad = self.image.addBands(self.col_rad.select(['B10'],["T_RAD"]))
                 
                 #CLOUD REMOTION
                 self.image=ee.ImageCollection(self.image).map(f_cloudMaskL8_SR)
